@@ -1,1 +1,2 @@
-print("hiii") 
+print(":)") 
+print(67)
