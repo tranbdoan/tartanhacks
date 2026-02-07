@@ -360,14 +360,14 @@ def end_game(winner):
     
     if winner == "player":
         wins += 1
-        update_msg(f"🎉 {player_name} WINS! 🎉")
+        update_msg(f"{player_name} WINS!")
         get_el("win-count").innerText = str(wins)
-        window.alert(f"🎉 VICTORY! Excellent work, Admiral {player_name}!")
+        window.alert(f"VICTORY! Excellent work, Admiral {player_name}!")
     else:
         losses += 1
-        update_msg("😢 Computer Won.")
+        update_msg("All your Scotties sank! Computer WINS")
         get_el("loss-count").innerText = str(losses)
-        window.alert("😢 Defeat. The computer sank your fleet.")
+        window.alert("Sink, Sank, Sunk...You Lost!! :()")
 
 # --- AI Logic ---
 def get_neighbors(r, c):
@@ -458,7 +458,7 @@ def on_user_click(e):
     update_msg("Ship Placed!")
     if all(s['placed'] for s in ships_to_place.values()):
         game_started = True
-        update_msg("🚀 All placed! ATTACK THE COMPUTER!")
+        update_msg("Scotties have set sail! ATTACK THE COMPUTER!")
         get_el("ship-yard").style.display = "none"
 
 def on_comp_click(e):
