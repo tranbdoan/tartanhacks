@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>🐾 Scotty Dog Battleship 3.1 🐾</title>
+    <title>🐾 SINKING SCOTTIES🐾</title>
     <link rel="stylesheet" href="https://pyscript.net/releases/2023.05.1/pyscript.css" />
     <script defer src="https://pyscript.net/releases/2023.05.1/pyscript.js"></script>
     
@@ -11,10 +11,9 @@
             text-align: center; 
             background: #e0f7fa; 
             color: #333; 
+            margin: 0; padding: 20px;
         }
         h1 { color: #C41230; margin-bottom: 5px; text-shadow: 1px 1px 2px #aaa; }
-        
-        .game-container { display: flex; justify-content: center; gap: 40px; margin-top: 20px; flex-wrap: wrap; }
         
         /* --- 🌊 ANIMATED WATER BACKGROUND 🌊 --- */
         @keyframes wave-move {
@@ -22,12 +21,10 @@
             100% { background-position: 50px 50px; }
         }
 
-        table { 
+        .board-section table { 
             border-collapse: collapse; 
             box-shadow: 0 6px 12px rgba(0,0,0,0.3); 
-            border: 4px solid #0277bd; /* Dark Blue Border */
-            
-            /* The Water Effect */
+            border: 4px solid #0277bd;
             background-color: #03a9f4;
             background-image: 
                 radial-gradient(circle at 100% 150%, #03a9f4 24%, #4fc3f7 25%, #4fc3f7 28%, #03a9f4 29%, #03a9f4 36%, #4fc3f7 36%, #4fc3f7 40%, transparent 40%, transparent),
@@ -41,113 +38,172 @@
 
         td {
             width: 40px; height: 40px;
-            /* CRITICAL: Transparent background so we can see the water! */
             background-color: rgba(255, 255, 255, 0.1); 
             border: 1px solid rgba(255, 255, 255, 0.3);
             cursor: crosshair;
             text-align: center; vertical-align: middle;
             font-size: 24px; user-select: none;
-            
-            /* Image settings */
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: 85%;
+            background-position: center; background-repeat: no-repeat; background-size: 85%;
         }
+        td:hover { background-color: rgba(255, 255, 255, 0.3); }
 
-        td:hover {
-            background-color: rgba(255, 255, 255, 0.3); /* Slight highlight on hover */
-        }
-
-        /* --- CELL STATES --- */
-        
-        /* Placed Scotty Dog */
-        .scotty {
-            background-image: url('scotty_dog.png');
-            /* Gold tint */
-            background-color: rgba(255, 193, 7, 0.6); 
-        }
-
-        /* Hit on a Dog (Explosion) */
-        .hit.scotty {
-             background-color: rgba(211, 47, 47, 0.8) !important; /* Red tint */
-             box-shadow: inset 0 0 10px #b71c1c;
-        }
-
-        /* Miss (Splash in water) */
-        .miss { 
-            background-color: rgba(255, 255, 255, 0.4) !important; 
-            color: #01579b;
-        }
-        
-        /* Hit on empty water */
-        .hit { 
-            background-color: rgba(255, 82, 82, 0.8) !important; 
-            color: white; 
-        }
-
-        /* Preview (Ghost Dog) */
-        .preview { 
-            background-image: url('scotty_dog.png');
-            opacity: 0.7;
-            background-color: rgba(255, 255, 255, 0.5);
-        } 
+        /* Cell States */
+        .scotty { background-image: url('scotty_dog.png'); background-color: rgba(255, 193, 7, 0.6); }
+        .hit.scotty { background-color: rgba(211, 47, 47, 0.8) !important; box-shadow: inset 0 0 10px #b71c1c; }
+        .miss { background-color: rgba(255, 255, 255, 0.4) !important; color: #01579b; }
+        .hit { background-color: rgba(255, 82, 82, 0.8) !important; color: white; }
+        .preview { background-image: url('scotty_dog.png'); opacity: 0.7; background-color: rgba(255, 255, 255, 0.5); } 
         .invalid { background-color: rgba(255, 0, 0, 0.4); opacity: 1; background-image: none; }
 
+        /* UI Structure */
+        #start-screen {
+            background: white; padding: 40px; border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block; margin-top: 50px;
+        }
+        #game-area { display: none; position: relative; } /* Hidden until name entered */
 
-        /* --- UI ELEMENTS --- */
-        #ship-yard { 
-            margin: 10px auto; padding: 10px; background: white; 
-            border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-            display: inline-block;
+        input { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; width: 200px;}
+        
+        button.action-btn {
+            background: #C41230; color: white; border: none; padding: 10px 20px;
+            font-size: 16px; border-radius: 5px; cursor: pointer; margin-left: 10px;
         }
-        .ship-btn {
-            background: #e0e0e0; border: 2px solid #999; 
-            padding: 8px 12px; margin: 0 4px; cursor: pointer; 
-            border-radius: 4px; font-weight: bold;
+        button.action-btn:hover { background: #a00e26; }
+
+        #scoreboard {
+            background: #fff; padding: 10px 20px; border-radius: 20px;
+            display: inline-block; margin: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-weight: bold;
         }
+        .score-val { color: #C41230; font-size: 1.2em; margin: 0 5px; }
+
+        #ship-yard { margin: 10px auto; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: inline-block; }
+        .ship-btn { background: #e0e0e0; border: 2px solid #999; padding: 8px 12px; margin: 0 4px; cursor: pointer; border-radius: 4px; font-weight: bold; }
         .ship-btn:hover { background: #d0d0d0; }
         .ship-btn.selected { background: #ffb703; border-color: #C41230; color: white; }
         .ship-btn.placed { background: #81c784; border-color: #388e3c; color: #1b5e20; cursor: default; text-decoration: line-through; }
 
         #status-msg { font-weight: bold; height: 30px; color: #C41230; margin-top: 10px; font-size: 1.2em; }
-        .controls-hint { font-size: 0.9em; color: #555; margin-bottom: 5px; background: #fff; display: inline-block; padding: 5px 15px; border-radius: 20px;}
+        
+        /* Game Over Buttons */
+        #play-again-container { display: none; margin-top: 20px; }
+        
+        #play-again-btn {
+            background: #2e7d32; color: white; padding: 10px 20px; 
+            font-size: 18px; border: none; border-radius: 8px; 
+            cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            margin: 0 10px;
+        }
+        #play-again-btn:hover { background: #1b5e20; }
+        
+        #new-player-btn {
+            background: #0277bd; color: white; padding: 10px 20px; 
+            font-size: 18px; border: none; border-radius: 8px; 
+            cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            margin: 0 10px;
+        }
+        #new-player-btn:hover { background: #01579b; }
+        
+        /* Small Exit Button */
+        #exit-btn {
+            position: absolute; top: 0; left: 10px;
+            background: #666; color: white; border: none; padding: 5px 10px;
+            border-radius: 4px; cursor: pointer; font-size: 12px;
+        }
+
+        .game-container { display: flex; justify-content: center; gap: 40px; margin-top: 20px; flex-wrap: wrap; }
+        
+        /* Music Button */
+        #music-btn {
+            position: absolute; top: 10px; right: 10px;
+            padding: 8px 15px; background: #0277bd; color: white;
+            border: none; border-radius: 5px; cursor: pointer; font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <h1>🐾 SINKING SCOTTIES 🐾</h1>
-    <p class="controls-hint">Press <strong>'R'</strong> to Rotate • <strong>'Enter'</strong> to Restart</p>
     
-    <div id="ship-yard">
-        <button id="btn-5" class="ship-btn" onclick="select_ship(5)">Carrier (5)</button>
-        <button id="btn-4" class="ship-btn" onclick="select_ship(4)">Battleship (4)</button>
-        <button id="btn-3a" class="ship-btn" onclick="select_ship(3, 'a')">Cruiser (3)</button>
-        <button id="btn-3b" class="ship-btn" onclick="select_ship(3, 'b')">Submarine (3)</button>
-        <button id="btn-2" class="ship-btn" onclick="select_ship(2)">Destroyer (2)</button>
-    </div>
-    
-    <div id="status-msg">Select a ship above to start!</div>
+    <audio id="bg-music" loop><source src="background_music.mp3" type="audio/mpeg"></audio>
+    <button id="music-btn" onclick="toggle_music()">🎵 Play Music</button>
 
-    <div class="game-container">
-        <div class="board-section">
-            <h2>Your Board</h2>
-            <table id="user-board" onmouseout="clear_preview()"></table>
-        </div>
-        <div class="board-section">
-            <h2>Computer Board</h2>
-            <table id="comp-board"></table>
-        </div>
+    <div id="start-screen">
+        <h2>Welcome, Captain!</h2>
+        <p>Enter your name to name your fleet:</p>
+        <input type="text" id="player-name-input" placeholder="Enter Name..." onkeydown="if(event.key==='Enter') start_game_js()">
+        <button class="action-btn" onclick="start_game_js()">Start Game</button>
     </div>
+
+    <div id="game-area">
+        <button id="exit-btn" onclick="full_reset_js()">⬅️ Exit / New Player</button>
+        
+        <div id="scoreboard">
+            Wins: <span id="win-count" class="score-val">0</span> | 
+            Losses: <span id="loss-count" class="score-val">0</span>
+        </div>
+        
+        <br>
+
+        <div id="ship-yard">
+            <button id="btn-5" class="ship-btn" onclick="select_ship(5)">Carrier (5)</button>
+            <button id="btn-4" class="ship-btn" onclick="select_ship(4)">Battleship (4)</button>
+            <button id="btn-3a" class="ship-btn" onclick="select_ship(3, 'a')">Cruiser (3)</button>
+            <button id="btn-3b" class="ship-btn" onclick="select_ship(3, 'b')">Submarine (3)</button>
+            <button id="btn-2" class="ship-btn" onclick="select_ship(2)">Destroyer (2)</button>
+        </div>
+        
+        <div id="status-msg">Place your ships!</div>
+
+        <div id="play-again-container">
+            <button id="play-again-btn" onclick="reset_game_js()">🔄 Play Again (Keep Score)</button>
+            <button id="new-player-btn" onclick="full_reset_js()">👤 New Player (Reset All)</button>
+        </div>
+
+        <div class="game-container">
+            <div class="board-section">
+                <h2 id="player-board-title">Your Board</h2>
+                <table id="user-board" onmouseout="clear_preview()"></table>
+            </div>
+            <div class="board-section">
+                <h2>Computer Board</h2>
+                <table id="comp-board"></table>
+            </div>
+        </div>
+        
+        <p style="margin-top:20px; color:#666; font-size:0.9em;">Press <strong>'R'</strong> to Rotate Ships</p>
+    </div>
+
+    <script>
+        function toggle_music() {
+            var audio = document.getElementById("bg-music");
+            var btn = document.getElementById("music-btn");
+            if (audio.paused) { audio.play(); btn.innerHTML = "⏸️ Pause Music"; } 
+            else { audio.pause(); btn.innerHTML = "🎵 Play Music"; }
+        }
+        function start_game_js() { window.pyscript_start_game(); }
+        function reset_game_js() { window.pyscript_reset_round(); }
+        function full_reset_js() { 
+            if(confirm("Are you sure? This will erase the current score.")) {
+                window.pyscript_full_reset(); 
+            }
+        }
+    </script>
 
     <py-script>
 import random
 from js import document, window, console
 from pyodide.ffi import create_proxy
 
-# --- Configuration ---
+# --- Config ---
 ROWS, COLS = 10, 10
 EMPTY, SHIP, HIT, MISS = 0, 1, 2, 3
 
-# State
+# --- Global State ---
+player_name = "Player"
+wins = 0
+losses = 0
+
 user_board = []
 comp_board = []
 game_started = False
@@ -155,36 +211,14 @@ game_over = False
 current_ship_id = None
 is_horizontal = True
 ships_to_place = {}
+ai_targets = [] 
 
-# --- Helpers ---
+# --- DOM Helpers ---
 def get_el(id): return document.getElementById(id)
 def get_cell(board, r, c): return document.getElementById(f"{board}-{r}-{c}")
 def update_msg(msg): get_el("status-msg").innerText = msg
 
-def reset_state():
-    global user_board, comp_board, game_started, game_over, ships_to_place, current_ship_id
-    user_board = [[EMPTY]*COLS for _ in range(ROWS)]
-    comp_board = [[EMPTY]*COLS for _ in range(ROWS)]
-    game_started = False
-    game_over = False
-    current_ship_id = None
-    ships_to_place = {
-        '5': {'size': 5, 'placed': False},
-        '4': {'size': 4, 'placed': False},
-        '3a': {'size': 3, 'placed': False},
-        '3b': {'size': 3, 'placed': False},
-        '2': {'size': 2, 'placed': False}
-    }
-    
-    get_el("ship-yard").style.display = "inline-block"
-    for k in ships_to_place:
-        btn = get_el(f"btn-{k}")
-        btn.classList.remove("selected", "placed")
-        btn.disabled = False
-    
-    update_msg("Game Reset! Select a ship to place.")
-    create_boards()
-    comp_place_ships()
+# --- Core Functions Definition (Order matters!) ---
 
 def get_coords(r, c, size, horiz):
     return [(r, c+i) if horiz else (r+i, c) for i in range(size)]
@@ -195,7 +229,105 @@ def is_valid(board, coords):
             return False
     return True
 
-# --- JS Exports ---
+# --- Game Logic ---
+
+def create_boards():
+    for bid, is_user in [("user-board", True), ("comp-board", False)]:
+        tbl = get_el(bid)
+        tbl.innerHTML = ""
+        for r in range(ROWS):
+            row = document.createElement("tr")
+            for c in range(COLS):
+                cell = document.createElement("td")
+                cell.id = f"{bid}-{r}-{c}"
+                cell.setAttribute("data-r", str(r)); cell.setAttribute("data-c", str(c))
+                if is_user:
+                    cell.addEventListener("click", create_proxy(on_user_click))
+                    cell.addEventListener("mouseover", create_proxy(on_user_hover))
+                else:
+                    cell.addEventListener("click", create_proxy(on_comp_click))
+                row.appendChild(cell)
+            tbl.appendChild(row)
+
+def comp_place_ships():
+    for size in [5, 4, 3, 3, 2]:
+        while True:
+            r, c = random.randint(0, ROWS-1), random.randint(0, COLS-1)
+            horiz = random.choice([True, False])
+            coords = get_coords(r, c, size, horiz)
+            if is_valid(comp_board, coords):
+                for nr, nc in coords: comp_board[nr][nc] = SHIP
+                break
+
+def reset_round_py():
+    global user_board, comp_board, game_started, game_over, ships_to_place, current_ship_id, ai_targets
+    
+    # Reset internal game state (keep scores)
+    user_board = [[EMPTY]*COLS for _ in range(ROWS)]
+    comp_board = [[EMPTY]*COLS for _ in range(ROWS)]
+    game_started = False
+    game_over = False
+    current_ship_id = None
+    ai_targets = []
+    ships_to_place = {
+        '5': {'size': 5, 'placed': False},
+        '4': {'size': 4, 'placed': False},
+        '3a': {'size': 3, 'placed': False},
+        '3b': {'size': 3, 'placed': False},
+        '2': {'size': 2, 'placed': False}
+    }
+    
+    # UI Reset
+    get_el("ship-yard").style.display = "inline-block"
+    get_el("play-again-container").style.display = "none"
+    update_msg("New Round! Place your ships.")
+    
+    for k in ships_to_place:
+        btn = get_el(f"btn-{k}")
+        btn.classList.remove("selected", "placed")
+        btn.disabled = False
+    
+    create_boards()
+    comp_place_ships()
+
+window.pyscript_reset_round = reset_round_py
+
+def full_reset_py():
+    global wins, losses, player_name
+    wins = 0
+    losses = 0
+    player_name = "Player"
+    
+    # Reset UI Text
+    get_el("win-count").innerText = "0"
+    get_el("loss-count").innerText = "0"
+    get_el("player-name-input").value = "" 
+    
+    # Switch Screens
+    get_el("game-area").style.display = "none"
+    get_el("start-screen").style.display = "inline-block"
+    
+    # Reset boards silently so next game is fresh
+    reset_round_py()
+
+window.pyscript_full_reset = full_reset_py
+
+def start_game_py():
+    global player_name
+    name_input = get_el("player-name-input").value.strip()
+    if name_input:
+        player_name = name_input
+    
+    get_el("start-screen").style.display = "none"
+    get_el("game-area").style.display = "block"
+    get_el("player-board-title").innerText = f"{player_name}'s Board"
+    
+    reset_round_py()
+
+window.pyscript_start_game = start_game_py
+
+
+# --- Helpers ---
 def select_ship_py(size, uid=None):
     global current_ship_id
     if game_started: return
@@ -217,41 +349,71 @@ def clear_preview_py(e):
             if cell: cell.classList.remove("preview", "invalid")
 window.clear_preview = clear_preview_py
 
-# --- Logic ---
-def comp_place_ships():
-    for size in [5, 4, 3, 3, 2]:
-        while True:
-            r, c = random.randint(0, ROWS-1), random.randint(0, COLS-1)
-            horiz = random.choice([True, False])
-            coords = get_coords(r, c, size, horiz)
-            if is_valid(comp_board, coords):
-                for nr, nc in coords: comp_board[nr][nc] = SHIP
-                break
-
 def check_win(board):
     return all(cell != SHIP for row in board for cell in row)
 
+def end_game(winner):
+    global game_over, wins, losses
+    game_over = True
+    get_el("play-again-container").style.display = "block"
+    get_el("ship-yard").style.display = "none"
+    
+    if winner == "player":
+        wins += 1
+        update_msg(f"🎉 {player_name} WINS! 🎉")
+        get_el("win-count").innerText = str(wins)
+        window.alert(f"🎉 VICTORY! Excellent work, Admiral {player_name}!")
+    else:
+        losses += 1
+        update_msg("😢 Computer Won.")
+        get_el("loss-count").innerText = str(losses)
+        window.alert("😢 Defeat. The computer sank your fleet.")
+
+# --- AI Logic ---
+def get_neighbors(r, c):
+    n = []
+    for dr, dc in [(-1,0), (1,0), (0,-1), (0,1)]:
+        nr, nc = r+dr, c+dc
+        if 0 <= nr < ROWS and 0 <= nc < COLS:
+            if user_board[nr][nc] in [EMPTY, SHIP]: 
+                n.append((nr, nc))
+    return n
+
 def comp_turn():
-    global game_over
-    while True:
-        r, c = random.randint(0, ROWS-1), random.randint(0, COLS-1)
-        if user_board[r][c] in [HIT, MISS]: continue
-        
-        cell = get_cell("user-board", r, c)
-        if user_board[r][c] == SHIP:
-            user_board[r][c] = HIT
-            cell.classList.add("hit")
-            cell.innerHTML = "💥"
-        else:
-            user_board[r][c] = MISS
-            cell.classList.add("miss")
-            cell.innerHTML = "•"
+    global ai_targets
+    
+    r, c = -1, -1
+    # 1. Smart Mode
+    while ai_targets:
+        tr, tc = ai_targets.pop() 
+        if user_board[tr][tc] in [EMPTY, SHIP]: 
+            r, c = tr, tc
+            break
             
-        if check_win(user_board):
-            update_msg("Sink, Sank, Sunk... You Lost! :( Press ENTER to restart.")
-            game_over = True
-            window.alert("Your Scotties All Sank!! 💀")
-        break
+    # 2. Hunt Mode
+    if r == -1:
+        attempts = 0
+        while True:
+            r, c = random.randint(0, ROWS-1), random.randint(0, COLS-1)
+            if user_board[r][c] in [EMPTY, SHIP]: break
+            attempts += 1
+            if attempts > 1000: break 
+
+    cell = get_cell("user-board", r, c)
+    if user_board[r][c] == SHIP:
+        user_board[r][c] = HIT
+        cell.classList.add("hit", "scotty") 
+        cell.innerHTML = "💥"
+        new_targets = get_neighbors(r, c)
+        random.shuffle(new_targets) 
+        ai_targets.extend(new_targets)
+    else:
+        user_board[r][c] = MISS
+        cell.classList.add("miss")
+        cell.innerHTML = "•"
+
+    if check_win(user_board):
+        end_game("computer")
 
 # --- Event Handlers ---
 def on_user_hover(e):
@@ -300,7 +462,6 @@ def on_user_click(e):
         get_el("ship-yard").style.display = "none"
 
 def on_comp_click(e):
-    global game_over
     if game_over: return
     if not game_started:
         window.alert("Place your ships first!")
@@ -314,9 +475,7 @@ def on_comp_click(e):
         cell.classList.add("scotty", "hit")
         cell.innerHTML = "💥"
         if check_win(comp_board):
-            update_msg("🎉 YOU WIN! Press ENTER to restart.")
-            game_over = True
-            window.alert("🎉 YOU WIN! 🎉")
+            end_game("player")
             return
     else:
         comp_board[r][c] = MISS
@@ -329,31 +488,8 @@ def on_key(e):
     if e.key.lower() == 'r':
         is_horizontal = not is_horizontal
         if current_ship_id: update_msg(f"Rotated: {'Horiz' if is_horizontal else 'Vert'}")
-    elif e.key == "Enter":
-        reset_state()
 
-# --- Init ---
-def create_boards():
-    for bid, is_user in [("user-board", True), ("comp-board", False)]:
-        tbl = get_el(bid)
-        tbl.innerHTML = ""
-        for r in range(ROWS):
-            row = document.createElement("tr")
-            for c in range(COLS):
-                cell = document.createElement("td")
-                cell.id = f"{bid}-{r}-{c}"
-                cell.setAttribute("data-r", str(r)); cell.setAttribute("data-c", str(c))
-                if is_user:
-                    cell.addEventListener("click", create_proxy(on_user_click))
-                    cell.addEventListener("mouseover", create_proxy(on_user_hover))
-                else:
-                    cell.addEventListener("click", create_proxy(on_comp_click))
-                row.appendChild(cell)
-            tbl.appendChild(row)
-
-reset_state()
 window.addEventListener("keydown", create_proxy(on_key))
     </py-script>
 </body>
 </html>
-
