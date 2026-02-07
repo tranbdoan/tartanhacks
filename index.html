@@ -365,9 +365,9 @@ def end_game(winner):
         window.alert(f"VICTORY! Excellent work, Admiral {player_name}!")
     else:
         losses += 1
-        update_msg("All your Scotties sank! Computer WINS")
+        update_msg("OH NO, ALL YOU SCOTTIES SANK!! COMPUTER WINS")
         get_el("loss-count").innerText = str(losses)
-        window.alert("Sink, Sank, Sunk...You Lost!! :()")
+        window.alert("SINK, SANK, SUNK...YOU LOST!!! :(")
 
 # --- AI Logic ---
 def get_neighbors(r, c):
