@@ -139,8 +139,8 @@
         <button id="exit-btn" onclick="full_reset_js()">⬅️ Exit / New Player</button>
         
         <div id="scoreboard">
-            Wins: <span id="win-count" class="score-val">0</span> | 
-            Losses: <span id="loss-count" class="score-val">0</span>
+            WINS: <span id="win-count" class="score-val">0</span> | 
+            LOSSES: <span id="loss-count" class="score-val">0</span>
         </div>
         
         <br>
@@ -367,7 +367,7 @@ def end_game(winner):
         losses += 1
         update_msg("OH NO, ALL YOU SCOTTIES SANK!! COMPUTER WINS")
         get_el("loss-count").innerText = str(losses)
-        window.alert("SINK, SANK, SUNK...YOU LOST!!! :(")
+        window.alert("SINK, SANK, SUNK...YOU LOST! :(")
 
 # --- AI Logic ---
 def get_neighbors(r, c):
@@ -458,7 +458,7 @@ def on_user_click(e):
     update_msg("Ship Placed!")
     if all(s['placed'] for s in ships_to_place.values()):
         game_started = True
-        update_msg("Scotties have set sail! ATTACK THE COMPUTER!")
+        update_msg("YOUR SCOTTIES HAVE SET SAIL! ATTACK THE COMPUTER!")
         get_el("ship-yard").style.display = "none"
 
 def on_comp_click(e):
