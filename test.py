@@ -1,2 +1,1 @@
-print(":)") 
-print(67)
+print("hiiiiiii") 
